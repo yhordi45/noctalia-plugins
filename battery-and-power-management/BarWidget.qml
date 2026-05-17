@@ -58,7 +58,6 @@ Item {
         profileSetter.running = true;
     }
 
-    // Questa è la funzione che il motore QML non trova nel tuo pannello
     function setBatteryThreshold(value) {
         root.batteryThreshold = value;
         thresholdSetter.command = ["sh", "-c", "echo " + value + " > /sys/class/power_supply/BAT0/charge_control_end_threshold"];
@@ -69,7 +68,7 @@ Item {
         id: thresholdSetter
         onExited: (code) => {
             if (code !== 0) {
-                console.log("Errore nella scrittura del battery threshold. Verifica i permessi udev.");
+                console.log("Error writing battery threshold. Check udev permissions.");
             }
         }
     }

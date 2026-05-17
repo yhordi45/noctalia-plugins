@@ -169,7 +169,9 @@ Item {
 
                     readonly property real minVal: 50
                     readonly property real maxVal: 100
-                    property real currentVal: root.mainWidget ? root.mainWidget.batteryThreshold : 80
+                    
+                    // Reactive mapping to the core backend state, falling back to 80 only if hardware read hasn't finished
+                    property real currentVal: (root.mainWidget && root.mainWidget.batteryThreshold >= 50) ? root.mainWidget.batteryThreshold : 80
 
                     Rectangle {
                         id: track
@@ -186,8 +188,9 @@ Item {
                             radius: 2
                             color: (typeof Color !== "undefined") ? Color.mPrimary : "#3355ff"
                             width: {
+                                if (track.width <= 0) return 0;
                                 let pct = (customSlider.currentVal - customSlider.minVal) / (customSlider.maxVal - customSlider.minVal);
-                                return pct * parent.width;
+                                return pct * track.width;
                             }
                         }
                     }
@@ -199,6 +202,7 @@ Item {
                         radius: width / 2
                         anchors.verticalCenter: parent.verticalCenter
                         x: {
+                            if (track.width <= 0) return 0;
                             let pct = (customSlider.currentVal - customSlider.minVal) / (customSlider.maxVal - customSlider.minVal);
                             return (pct * track.width) - (width / 2);
                         }
@@ -215,6 +219,7 @@ Item {
                         cursorShape: Qt.PointingHandCursor
                         
                         function handlePositionUpdate(mouseX) {
+                            if (track.width <= 0) return;
                             let clampedX = Math.max(0, Math.min(mouseX, track.width));
                             let pct = clampedX / track.width;
                             let rawValue = customSlider.minVal + (pct * (customSlider.maxVal - customSlider.minVal));
@@ -223,6 +228,7 @@ Item {
                             let finalValue = Math.max(customSlider.minVal, Math.min(steppedValue, customSlider.maxVal));
                             
                             if (root.mainWidget && root.mainWidget.batteryThreshold !== finalValue) {
+                                customSlider.currentVal = finalValue;
                                 root.mainWidget.setBatteryThreshold(finalValue);
                             }
                         }
@@ -233,7 +239,7 @@ Item {
                 }
 
                 NText {
-                    text: (root.mainWidget ? root.mainWidget.batteryThreshold : 80) + "%"
+                    text: customSlider.currentVal + "%"
                     font.weight: Font.Bold
                     pointSize: (typeof Style !== "undefined") ? Style.fontSizeS : 10
                     color: (typeof Color !== "undefined") ? Color.mOnSurface : "#ffffff"
