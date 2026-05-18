@@ -281,40 +281,30 @@ Item {
       return 1
     }
 
-    var targetIndex = 0
+    var matchPositions = []
+    var partIndex = 0
     var lastMatchIndex = -1
-    var lastPartEnd = -1
 
-    for (var p = 0; p < queryParts.length; p++) {
-      var part = queryParts[p]
-      var partMatched = false
-
-      for (var i = targetIndex; i < target.length; i++) {
-        if (target[i] === part[0]) {
-          var match = true
-          for (var j = 1; j < part.length; j++) {
-            if (i + j >= target.length || target[i + j] !== part[j]) {
-              match = false
-              break
-            }
-          }
-          if (match) {
-            if (p === 0 && i === 0) {
-              lastMatchIndex = i
-            } else if (i > lastPartEnd + 1) {
-              lastMatchIndex = i
-            }
-            lastPartEnd = i + part.length - 1
-            targetIndex = i + part.length
-            partMatched = true
+    for (var i = 0; i < target.length && partIndex < queryParts.length; i++) {
+      if (target[i] === queryParts[partIndex][0]) {
+        var match = true
+        for (var j = 1; j < queryParts[partIndex].length; j++) {
+          if (i + j >= target.length || target[i + j] !== queryParts[partIndex][j]) {
+            match = false
             break
           }
         }
+        if (match) {
+          matchPositions.push(i)
+          lastMatchIndex = i
+          partIndex++
+          i += queryParts[partIndex - 1].length - 1
+        }
       }
+    }
 
-      if (!partMatched) {
-        return 0
-      }
+    if (partIndex !== queryParts.length) {
+      return 0
     }
 
     var score = 0
@@ -431,12 +421,15 @@ Item {
     var path = root.selectedEntry.path
 
     results.push({
-      "name": path,
-      "description": pluginApi?.tr("result.passwordEntry") || "Password entry",
-      "icon": "key",
+      "name": "..",
+      "description": path,
+      "icon": "arrow-left",
       "isTablerIcon": true,
       "singleLine": true,
-      "onActivate": function() {}
+      "onActivate": function() {
+        root.resetDetailMode()
+        if (launcher) launcher.updateResults()
+      }
     })
 
     var passEntryRef = { "path": path, "field": null }
