@@ -31,11 +31,8 @@ Item {
   }
 
   function applyVibrance(value) {
-    var cmd = buildCmd(value)
-    Logger.i("NVibrant", "Running: " + cmd.join(" "))
-    nvibrantProcess.running = false
-    nvibrantProcess.command = cmd
-    Qt.callLater(function() { nvibrantProcess.running = true })
+    nvibrantProcess.command = buildCmd(value)
+    nvibrantProcess.running = true
   }
 
   function toggle() {
