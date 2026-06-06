@@ -279,7 +279,7 @@ PanelWindow {
             id: delegateRoot
             width: btnW
             height: btnH
-            radius: 24
+            radius: Style.iRadiusL
             readonly property bool effectiveHover: !win.keyboardActive && btnMouseArea.containsMouse
             readonly property bool isKeyboardFocused: win.keyboardActive && win.selectedIndex === index
             readonly property bool isActiveState: effectiveHover || isKeyboardFocused
@@ -340,7 +340,7 @@ PanelWindow {
 
             Column {
                 anchors.centerIn: parent
-                spacing: 16
+                spacing: Style.marginXL
 
                 Image {
                     id: btnIcon
